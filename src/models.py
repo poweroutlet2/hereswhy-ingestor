@@ -1,4 +1,5 @@
 # coding: utf-8
+from sqlalchemy import create_engine
 from sqlalchemy import BigInteger, Boolean, Column, Computed, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import TIMESTAMP, TSVECTOR
 from sqlalchemy.orm import relationship
@@ -7,12 +8,13 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 metadata = Base.metadata
 
-from sqlalchemy import create_engine
 engine = create_engine("sqlite://", echo=True)
+
 
 class MixinAsDict:
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Author(MixinAsDict, Base):
     __tablename__ = 'author'
@@ -126,6 +128,7 @@ class Thread(MixinAsDict, Base):
     like_count = Column(Integer)
     retweet_count = Column(Integer)
     reply_count = Column(Integer)
+    view_count = Column(Integer)
     sensitive = Column(Boolean)
     tweeted_at = Column(DateTime, index=True, server_default=text("now()"))
     created_at = Column(DateTime, server_default=text("now()"))
@@ -182,6 +185,7 @@ class Tweet(MixinAsDict, Base):
     tweeted_at = Column(DateTime, nullable=False, server_default=text("now()"))
     created_at = Column(DateTime, server_default=text("now()"))
     updated_at = Column(DateTime, server_default=text("now()"))
+    index = Column(Integer)
     search = Column(TSVECTOR, Computed(
         "to_tsvector('english'::regconfig, content)", persisted=True), index=True)
 
