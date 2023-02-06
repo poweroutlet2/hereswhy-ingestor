@@ -26,9 +26,7 @@ class Author(MixinAsDict, Base):
     following_count = Column(Integer)
     created_at = Column(DateTime, server_default=text("now()"))
     updated_at = Column(DateTime, server_default=text("now()"))
-    last_tweet_at = Column(DateTime, index=True)
     source_account_id = Column(BigInteger)
-    source_tweet_id = Column(BigInteger)
     profile_picture_url = Column(Text)
 
 
@@ -135,7 +133,6 @@ class Thread(MixinAsDict, Base):
     updated_at = Column(DateTime, server_default=text("now()"))
     length = Column(Integer)
     source_account_id = Column(BigInteger)
-    source_tweet_id = Column(BigInteger)
     lang = Column(String(5), index=True)
 
     author = relationship('Author')
@@ -179,12 +176,8 @@ class Tweet(MixinAsDict, Base):
     __tablename__ = 'tweet'
 
     id = Column(BigInteger, primary_key=True)
-    author_id = Column(BigInteger)
     thread_id = Column(ForeignKey('thread.id'), index=True)
     content = Column(Text, index=True)
-    tweeted_at = Column(DateTime, nullable=False, server_default=text("now()"))
-    created_at = Column(DateTime, server_default=text("now()"))
-    updated_at = Column(DateTime, server_default=text("now()"))
     index = Column(Integer)
     search = Column(TSVECTOR, Computed(
         "to_tsvector('english'::regconfig, content)", persisted=True), index=True)

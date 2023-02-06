@@ -1,5 +1,10 @@
 from datetime import datetime
 from snsUtils import getConversationIdsFromUser, getThread, Thread, getTweet, getThreads
+from snscrape.modules.twitter import (
+    Photo as snsPhoto,
+    Video as snsVideo,
+    Gif as snsGif
+)
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from config import DB_URL
@@ -22,44 +27,82 @@ if __name__ == "__main__":
     save_bot_usernames = get_save_bots()
 
     for save_bot in save_bot_usernames:
+        print(f"Retrieving conversation_ids from @{save_bot.username}...")
         conversation_ids = getConversationIdsFromUser(
-            username=save_bot.username, max_lookback_tweets=1
+            username=save_bot.username, max_lookback_tweets=50
         )
+        print(f"Retrieving {len(conversation_ids)} threads...")
         threads = getThreads(conversation_ids)
 
-        # deconstruct threads into db objects: threads, tweets, authors,
+        print(f"Threads Retrieved. Building DB objects...")
+        threads_db: list[models.Thread] = []
+        authors_db: list[models.Author] = []
+        tweets_db: list[models.Tweet] = []
+        media_db: list[models.Media] = []
+
+        # deconstruct threads into db objects: threads, tweets, authors, medias
         for thread in threads:
-            thread_db: models.Thread
-            author_db: models.Author
-            tweets_db: list[models.Tweet]
+            tweets_db: list[models.Tweet] = []
 
             first_tweet = thread.tweets[0]
-            thread_db = models.Thread(
-                id=first_tweet.id,
-                author_id=first_tweet.user.id,
-                like_count=first_tweet.likeCount,
-                reply_count=first_tweet.replyCount,
-                retweet_count=first_tweet.retweetCount,
-                view_count=first_tweet.viewCount,
-                lang=first_tweet.lang,
-                tweeted_at=first_tweet.date,
-                # sensitive=
-                source_account_id=save_bot.id,
-                length=len(thread.tweets),
-                created_at=datetime.utcnow().replace(microsecond=0),
-                updated_at=datetime.utcnow().replace(microsecond=0),
+            # Build author
+            authors_db.append(
+                models.Author(
+                    id=first_tweet.user.id,
+                    username=first_tweet.user.username,
+                    display_name=first_tweet.user.displayname,
+                    follower_count=first_tweet.user.followersCount,
+                    following_count=first_tweet.user.friendsCount,
+                    source_account_id=save_bot.id,
+                    profile_picture_url=first_tweet.user.profileImageUrl
+                )
             )
-            for tweet in thread.tweets:
-                tweet_db: models.Tweet
-                media_db: list[models.Media]
+            # Build thread
+            threads_db.append(
+                models.Thread(
+                    id=first_tweet.id,
+                    author_id=first_tweet.user.id,
+                    like_count=first_tweet.likeCount,
+                    reply_count=first_tweet.replyCount,
+                    retweet_count=first_tweet.retweetCount,
+                    view_count=first_tweet.viewCount,
+                    lang=first_tweet.lang,
+                    tweeted_at=first_tweet.date,
+                    # sensitive=
+                    source_account_id=save_bot.id,
+                    length=len(thread.tweets),
+                )
+            )
+
+            # Build tweets and media
+            for i, tweet in enumerate(thread.tweets):
+                tweets_db.append(
+                    models.Tweet(
+                        id=tweet.id,
+                        thread_id=thread.id,
+                        content=tweet.rawContent,
+                        index=i,
+                    )
+                )
 
                 if tweet.media:
                     for media in tweet.media:
-                        media_db: models.Media
-                        if media.__class__ == "snscrape.modules.twitter.Photo":
-                            pass
-                        elif media.__class__ == "snscrape.modules.twitter.Gid":
-                            pass
-                        elif media.__class__ == "snscrape.modules.twitter.Video":
-                            pass
-        # extract db objects from threads
+                        id, type, url, preview_image_url = "", "", "", ""
+
+                        if isinstance(media, snsPhoto):
+                            print("photo")
+                        elif isinstance(media, snsGif):
+                            print("gif")
+                        elif isinstance(media, snsVideo):
+                            print("video")
+
+                        media_db.append(
+                            models.Media(
+                                id=id,
+                                type=type,
+                                url=url,
+                                preview_image_url=preview_image_url,
+                                tweet_id=tweet.id
+                            )
+                        )
+        print("asdas")
