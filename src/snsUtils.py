@@ -18,7 +18,7 @@ class Thread:
     tweets: list[Tweet]
 
 
-def getTweet(tweet_id: str) -> Tweet:
+def getTweet(tweet_id: str) -> Tweet | None:
     for i, tweet in enumerate(
         snstwitter.TwitterTweetScraper(
             tweetId=tweet_id, mode=TwitterTweetScraperMode.SINGLE
@@ -55,7 +55,7 @@ def getConversationIdsFromUser(
     return list(conversation_ids)
 
 
-def getThread(conversation_id: str, min_thread_length=3) -> Thread:
+def getThread(conversation_id: int | str, min_thread_length=3) -> Thread | None:
     """Retrieves all tweets in the thread with the specified conversation_id.
 
     A tweet is considered a part of the thread if the author of the tweet is the same as the author of the first tweet,
@@ -69,7 +69,7 @@ def getThread(conversation_id: str, min_thread_length=3) -> Thread:
     author = ""
     for i, tweet in enumerate(
         snstwitter.TwitterTweetScraper(
-            tweetId=conversation_id, mode=TwitterTweetScraperMode.SCROLL
+            tweetId=int(conversation_id), mode=TwitterTweetScraperMode.SCROLL
         ).get_items()
     ):
         # add tweets to thread
@@ -83,7 +83,7 @@ def getThread(conversation_id: str, min_thread_length=3) -> Thread:
         else:
             break
     if len(tweets) >= min_thread_length:
-        return Thread(id=conversation_id, tweets=tweets)
+        return Thread(id=int(conversation_id), tweets=tweets)
 
 
 def getThreads(conversation_ids: list[int]) -> list[Thread]:
@@ -91,5 +91,5 @@ def getThreads(conversation_ids: list[int]) -> list[Thread]:
     for id in conversation_ids:
         thread = getThread(id)
         if thread:
-            threads.append(getThread(id))
+            threads.append(thread)
     return threads

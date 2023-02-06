@@ -14,12 +14,27 @@ engine = create_engine(DB_URL)
 
 
 def get_save_bots():
-    """Retrieves save bot usernames from the savebot table"""
+    """Retrieves save bot usernames from the savebot table
+    """
+
     save_bots = []
 
     with Session(engine) as session:
         save_bots = session.scalars(select(models.SaveBot)).all()
     return list(save_bots)
+
+
+def get_variant_video_url(video: snsVideo | snsGif) -> str:
+    """Finds the highest bitrate mp4 video url from the given media
+    """
+
+    url = video.variants[-1]
+    max_bitrate = 0
+    for variant in video.variants:
+        if variant.contentType == "video/mp4" and variant.bitrate > max_bitrate:
+            max_bitrate = variant.bitrate
+            url = variant.url
+    return url
 
 
 if __name__ == "__main__":
@@ -87,22 +102,23 @@ if __name__ == "__main__":
 
                 if tweet.media:
                     for media in tweet.media:
-                        id, type, url, preview_image_url = "", "", "", ""
+                        id, type, url = "", "", ""
 
                         if isinstance(media, snsPhoto):
-                            print("photo")
+                            type = "photo"
+                            url = media.fullUrl
                         elif isinstance(media, snsGif):
-                            print("gif")
+                            type = "gif"
+                            url = get_variant_video_url(media)
                         elif isinstance(media, snsVideo):
-                            print("video")
+                            type = "video"
+                            url = get_variant_video_url(media)
 
                         media_db.append(
                             models.Media(
                                 id=id,
                                 type=type,
                                 url=url,
-                                preview_image_url=preview_image_url,
                                 tweet_id=tweet.id
                             )
                         )
-        print("asdas")
