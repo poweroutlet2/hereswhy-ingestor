@@ -1,6 +1,6 @@
 # coding: utf-8
 from sqlalchemy import create_engine
-from sqlalchemy import BigInteger, Boolean, Column, Computed, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, text
+from sqlalchemy import BigInteger, Boolean, Column, Computed, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, ARRAY, text
 from sqlalchemy.dialects.postgresql import TIMESTAMP, TSVECTOR
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -179,6 +179,7 @@ class Tweet(MixinAsDict, Base):
     thread_id = Column(ForeignKey('thread.id'), index=True)
     content = Column(Text, index=True)
     index = Column(Integer)
+    links = Column(ARRAY(Text))
     search = Column(TSVECTOR, Computed(
         "to_tsvector('english'::regconfig, content)", persisted=True), index=True)
 
