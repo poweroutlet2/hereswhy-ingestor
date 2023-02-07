@@ -44,7 +44,7 @@ if __name__ == "__main__":
     for save_bot in save_bot_usernames:
         print(f"Retrieving conversation_ids from @{save_bot.username}...")
         conversation_ids = getConversationIdsFromUser(
-            username=save_bot.username, max_lookback_tweets=50
+            username=save_bot.username, max_lookback_tweets=1
         )
         print(f"Retrieving {len(conversation_ids)} threads...")
         threads = getThreads(conversation_ids)
@@ -57,8 +57,6 @@ if __name__ == "__main__":
 
         # deconstruct threads into db objects: threads, tweets, authors, medias
         for thread in threads:
-            tweets_db: list[models.Tweet] = []
-
             first_tweet = thread.tweets[0]
             # Build author
             authors_db.append(
@@ -91,11 +89,18 @@ if __name__ == "__main__":
 
             # Build tweets and media
             for i, tweet in enumerate(thread.tweets):
+                links = []
+                if tweet.links:
+                    for link in tweet.links:
+                        links.append(link.text)
+                        links.append(link.url)
+
                 tweets_db.append(
                     models.Tweet(
                         id=tweet.id,
                         thread_id=thread.id,
-                        content=tweet.rawContent,
+                        content=tweet.renderedContent,
+                        links=links,
                         index=i,
                     )
                 )
@@ -116,9 +121,20 @@ if __name__ == "__main__":
 
                         media_db.append(
                             models.Media(
-                                id=id,
+                                id=url,
                                 type=type,
                                 url=url,
                                 tweet_id=tweet.id
                             )
                         )
+
+        all_db_objects = []
+        all_db_objects.extend(authors_db)
+        all_db_objects.extend(threads_db)
+        all_db_objects.extend(tweets_db)
+        all_db_objects.extend(media_db)
+        print(f"Saving {len(all_db_objects)} objects...")
+
+        with Session(engine) as session:
+            session.bulk_save_objects(all_db_objects)
+            session.commit()
