@@ -11,12 +11,24 @@ metadata = Base.metadata
 engine = create_engine("sqlite://", echo=True)
 
 
-class MixinAsDict:
+class MixinDictHelpers:
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
+    def upsert_dict(self):
+        res = self.as_dict()
+        res.pop('id')
+        if res.get('created_at', None):
+            res.pop('created_at')
+        if res.get('source_account_id', None):
+            res.pop('source_account_id')
+        if res.get('search', None):
+            res.pop('search')
 
-class Author(MixinAsDict, Base):
+        return res
+
+
+class Author(MixinDictHelpers, Base):
     __tablename__ = 'author'
 
     id = Column(BigInteger, primary_key=True)
@@ -30,7 +42,7 @@ class Author(MixinAsDict, Base):
     profile_picture_url = Column(Text)
 
 
-class Category(MixinAsDict, Base):
+class Category(MixinDictHelpers, Base):
     __tablename__ = 'category'
 
     id = Column(BigInteger, primary_key=True)
@@ -38,7 +50,7 @@ class Category(MixinAsDict, Base):
     description = Column(String(255), index=True)
 
 
-class SaveBot(MixinAsDict, Base):
+class SaveBot(MixinDictHelpers, Base):
     __tablename__ = 'save_bot'
 
     id = Column(BigInteger, primary_key=True)
@@ -49,7 +61,7 @@ class SaveBot(MixinAsDict, Base):
     updated_at = Column(DateTime)
 
 
-class User(MixinAsDict, Base):
+class User(MixinDictHelpers, Base):
     __tablename__ = 'user'
 
     id = Column(Text, primary_key=True)
@@ -69,7 +81,7 @@ t_verification_token = Table(
 )
 
 
-class Account(MixinAsDict, Base):
+class Account(MixinDictHelpers, Base):
     __tablename__ = 'account'
     __table_args__ = (
         Index('account_provider_providerAccountId_key',
@@ -93,7 +105,7 @@ class Account(MixinAsDict, Base):
     user = relationship('User')
 
 
-class List(MixinAsDict, Base):
+class List(MixinDictHelpers, Base):
     __tablename__ = 'list'
 
     id = Column(Integer, primary_key=True, server_default=text(
@@ -106,7 +118,7 @@ class List(MixinAsDict, Base):
     user = relationship('User')
 
 
-class Session(MixinAsDict, Base):
+class Session(MixinDictHelpers, Base):
     __tablename__ = 'session'
 
     id = Column(Text, primary_key=True)
@@ -118,7 +130,7 @@ class Session(MixinAsDict, Base):
     user = relationship('User')
 
 
-class Thread(MixinAsDict, Base):
+class Thread(MixinDictHelpers, Base):
     __tablename__ = 'thread'
 
     id = Column(BigInteger, primary_key=True)
@@ -138,7 +150,7 @@ class Thread(MixinAsDict, Base):
     author = relationship('Author')
 
 
-class SavedThread(MixinAsDict, Base):
+class SavedThread(MixinDictHelpers, Base):
     __tablename__ = 'saved_thread'
     __table_args__ = (
         UniqueConstraint('list_id', 'thread_id'),
@@ -157,7 +169,7 @@ class SavedThread(MixinAsDict, Base):
     thread = relationship('Thread')
 
 
-class ThreadCategory(MixinAsDict, Base):
+class ThreadCategory(MixinDictHelpers, Base):
     __tablename__ = 'thread_categories'
     __table_args__ = (
         UniqueConstraint('thread_id', 'category_id'),
@@ -172,7 +184,7 @@ class ThreadCategory(MixinAsDict, Base):
     thread = relationship('Thread')
 
 
-class Tweet(MixinAsDict, Base):
+class Tweet(MixinDictHelpers, Base):
     __tablename__ = 'tweet'
 
     id = Column(BigInteger, primary_key=True)
@@ -180,13 +192,13 @@ class Tweet(MixinAsDict, Base):
     content = Column(Text, index=True)
     index = Column(Integer)
     links = Column(ARRAY(Text))
-    search = Column(TSVECTOR, Computed(
-        "to_tsvector('english'::regconfig, content)", persisted=True), index=True)
+    # search = Column(TSVECTOR, Computed(
+    #     "to_tsvector('english'::regconfig, content)", persisted=True), index=True)
 
     thread = relationship('Thread')
 
 
-class Media(MixinAsDict, Base):
+class Media(MixinDictHelpers, Base):
     __tablename__ = 'media'
 
     id = Column(Text, primary_key=True)
