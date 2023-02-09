@@ -55,7 +55,7 @@ if __name__ == "__main__":
     for save_bot in save_bots:
         print(f"Retrieving conversation_ids from @{save_bot.username}...")
         conversation_ids = getConversationIdsFromUser(
-            username=save_bot.username, max_lookback_tweets=LOOKBACK_TWEETS, max_lookback_hours=LOOKBACK_HOURS)
+            username=save_bot.id, max_lookback_tweets=LOOKBACK_TWEETS, max_lookback_hours=LOOKBACK_HOURS)
         print(f"Retrieving {len(conversation_ids)} threads...")
         threads = getThreads(conversation_ids)
 
