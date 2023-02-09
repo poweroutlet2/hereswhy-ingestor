@@ -18,7 +18,7 @@ jobs:
           command: poetry show
       - run:
           name: run save_bot ingestor
-          command: poetry run python src/run_bot_injest.py
+          command: poetry run python src/main.py
       - persist_to_workspace:
           root: ~/project
           paths:
