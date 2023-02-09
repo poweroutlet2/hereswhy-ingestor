@@ -45,7 +45,7 @@ def bulk_upsert(session: Session, db_objects: list[models.Author] | list[models.
             constraint=db_object.__table__.primary_key,
             set_=db_object.upsert_dict())
         session.execute(statement)
-        # session.commit()
+        session.commit()
 
 
 if __name__ == "__main__":
