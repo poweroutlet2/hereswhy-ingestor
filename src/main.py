@@ -51,7 +51,6 @@ def bulk_upsert(session: Session, db_objects: list[models.Author] | list[models.
 if __name__ == "__main__":
     # Fetch save_bots from db
     save_bots = get_save_bots()
-    all_db_objects = []
 
     for save_bot in save_bots:
         print(f"Retrieving conversation_ids from @{save_bot.username}...")
@@ -147,10 +146,11 @@ if __name__ == "__main__":
                 session.add(save_bot)
                 # session.commit
 
+        all_db_objects = []
         all_db_objects.extend(authors_db)
         all_db_objects.extend(threads_db)
         all_db_objects.extend(tweets_db)
         all_db_objects.extend(media_db)
 
-    print(f"Saving {len(all_db_objects)} objects...")
-    bulk_upsert(session, all_db_objects)
+        print(f"Saving {len(all_db_objects)} objects...")
+        bulk_upsert(session, all_db_objects)
