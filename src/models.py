@@ -118,18 +118,6 @@ class List(MixinDictHelpers, Base):
     user = relationship('User')
 
 
-class Session(MixinDictHelpers, Base):
-    __tablename__ = 'session'
-
-    id = Column(Text, primary_key=True)
-    sessionToken = Column(Text, nullable=False, unique=True)
-    userId = Column(ForeignKey('user.id', ondelete='CASCADE',
-                    onupdate='CASCADE'), nullable=False)
-    expires = Column(TIMESTAMP(precision=3), nullable=False)
-
-    user = relationship('User')
-
-
 class Thread(MixinDictHelpers, Base):
     __tablename__ = 'thread'
 
