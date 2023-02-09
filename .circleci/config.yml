@@ -18,6 +18,7 @@ jobs:
           command: poetry show
       - run:
           name: run save_bot ingestor
+          no_output_timeout: 20m
           command: poetry run python src/main.py
       - persist_to_workspace:
           root: ~/project
