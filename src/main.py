@@ -1,5 +1,5 @@
 from datetime import datetime
-from snsUtils import getConversationIdsFromUser, getThread, Thread, getTweet, getThreads
+from snsUtils import getConversationIdsFromUser, getThreads
 from snscrape.modules.twitter import (
     Photo as snsPhoto,
     Video as snsVideo,
@@ -7,7 +7,7 @@ from snscrape.modules.twitter import (
 )
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
-from config import DB_URL
+from config import DB_URL, LOOKBACK_TWEETS, LOOKBACK_HOURS
 from sqlalchemy.dialects.postgresql import insert
 import models
 
@@ -56,8 +56,7 @@ if __name__ == "__main__":
     for save_bot in save_bots:
         print(f"Retrieving conversation_ids from @{save_bot.username}...")
         conversation_ids = getConversationIdsFromUser(
-            username=save_bot.username, max_lookback_tweets=3
-        )
+            username=save_bot.username, max_lookback_tweets=LOOKBACK_TWEETS, max_lookback_hours=LOOKBACK_HOURS)
         print(f"Retrieving {len(conversation_ids)} threads...")
         threads = getThreads(conversation_ids)
 
