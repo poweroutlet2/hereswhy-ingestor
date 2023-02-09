@@ -8,6 +8,7 @@ from snscrape.modules.twitter import (
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from config import DB_URL
+from sqlalchemy.dialects.postgresql import insert
 import models
 
 engine = create_engine(DB_URL)
@@ -29,7 +30,7 @@ def get_variant_video_url(video: snsVideo | snsGif) -> str:
     """
 
     url = video.variants[-1]
-    max_bitrate = 0
+    max_bitrate = -1  # gifs will have a bitrate of 0
     for variant in video.variants:
         if variant.contentType == "video/mp4" and variant.bitrate > max_bitrate:
             max_bitrate = variant.bitrate
@@ -37,14 +38,25 @@ def get_variant_video_url(video: snsVideo | snsGif) -> str:
     return url
 
 
+def bulk_upsert(session: Session, db_objects: list[models.Author] | list[models.Thread] | list[models.Tweet] | list[models.Media]):
+    for db_object in db_objects:
+        statement = insert(db_object.__class__).values(db_object.as_dict())
+        statement = statement.on_conflict_do_update(
+            constraint=db_object.__table__.primary_key,
+            set_=db_object.upsert_dict())
+        session.execute(statement)
+        # session.commit()
+
+
 if __name__ == "__main__":
     # Fetch save_bots from db
-    save_bot_usernames = get_save_bots()
+    save_bots = get_save_bots()
+    all_db_objects = []
 
-    for save_bot in save_bot_usernames:
+    for save_bot in save_bots:
         print(f"Retrieving conversation_ids from @{save_bot.username}...")
         conversation_ids = getConversationIdsFromUser(
-            username=save_bot.username, max_lookback_tweets=1
+            username=save_bot.username, max_lookback_tweets=3
         )
         print(f"Retrieving {len(conversation_ids)} threads...")
         threads = getThreads(conversation_ids)
@@ -128,13 +140,18 @@ if __name__ == "__main__":
                             )
                         )
 
-        all_db_objects = []
+        with Session(engine) as session:
+            # update save_bot progress
+            if tweets_db:
+                save_bot.latest_tweet = tweets_db[-1].id
+                save_bot.updated_at = datetime.now()
+                session.add(save_bot)
+                # session.commit
+
         all_db_objects.extend(authors_db)
         all_db_objects.extend(threads_db)
         all_db_objects.extend(tweets_db)
         all_db_objects.extend(media_db)
-        print(f"Saving {len(all_db_objects)} objects...")
 
-        with Session(engine) as session:
-            session.bulk_save_objects(all_db_objects)
-            session.commit()
+    print(f"Saving {len(all_db_objects)} objects...")
+    bulk_upsert(session, all_db_objects)
