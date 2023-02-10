@@ -51,13 +51,16 @@ def bulk_upsert(session: Session, db_objects: list[models.Author] | list[models.
 if __name__ == "__main__":
     # Fetch save_bots from db
     save_bots = get_save_bots()
+    thread_ids = set()
 
     for save_bot in save_bots:
         print(f"Retrieving conversation_ids from @{save_bot.username}...")
         conversation_ids = getConversationIdsFromUser(
             username=save_bot.id, max_lookback_tweets=LOOKBACK_TWEETS, max_lookback_hours=LOOKBACK_HOURS)
         print(f"Retrieving {len(conversation_ids)} threads...")
-        threads = getThreads(conversation_ids)
+        threads = getThreads(
+            conversation_ids=conversation_ids, exclude_ids=thread_ids
+        )
 
         print(f"Threads Retrieved. Building DB objects...")
         threads_db: list[models.Thread] = []
@@ -85,7 +88,7 @@ if __name__ == "__main__":
             # Build thread
             threads_db.append(
                 models.Thread(
-                    id=first_tweet.id,
+                    id=thread.id,
                     author_id=first_tweet.user.id,
                     like_count=first_tweet.likeCount,
                     reply_count=first_tweet.replyCount,

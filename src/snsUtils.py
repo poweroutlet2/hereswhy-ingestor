@@ -32,7 +32,7 @@ def getConversationIdsFromUser(
     max_lookback_tweets: Optional[int] = None,
     max_lookback_hours: Optional[int] = None,
 ) -> list[int]:
-    """Gets conversation ids from the specified user's latest tweets. Either lookback tweets or hours must be set.
+    """Gets unique conversation ids from the specified user's latest tweets. Either lookback tweets or hours must be set.
     Args:
         username: user to fetch tweets from
         lookback_tweet: number of most recent tweets to look at
@@ -86,10 +86,11 @@ def getThread(conversation_id: int | str, min_thread_length=3) -> Thread | None:
         return Thread(id=int(conversation_id), tweets=tweets)
 
 
-def getThreads(conversation_ids: list[int]) -> list[Thread]:
+def getThreads(conversation_ids: list[int], exclude_ids: set() = None) -> list[Thread]:
     threads = []
     for id in conversation_ids:
-        thread = getThread(id)
-        if thread:
-            threads.append(thread)
+        if not exclude_ids or id not in exclude_ids:
+            thread = getThread(id)
+            if thread:
+                threads.append(thread)
     return threads
