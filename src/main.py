@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from snsUtils import getConversationIdsFromUser, getThreads
 from snscrape.modules.twitter import (
     Photo as snsPhoto,
@@ -39,6 +40,8 @@ def get_variant_video_url(video: snsVideo | snsGif) -> str:
 
 
 def bulk_upsert(session: Session, db_objects: list[models.Author] | list[models.Thread] | list[models.Tweet] | list[models.Media]):
+    """Inserts db objects with on_conflict (kinda slow)
+    """
     for db_object in db_objects:
         statement = insert(db_object.__class__).values(db_object.as_dict())
         statement = statement.on_conflict_do_update(
@@ -46,6 +49,12 @@ def bulk_upsert(session: Session, db_objects: list[models.Author] | list[models.
             set_=db_object.upsert_dict())
         session.execute(statement)
         session.commit()
+
+
+def tweet_content_links_removed(content: str):
+    """Removes t.co links from content
+    """
+    return re.sub((r' https://t.co/\w{10}', '', content))
 
 
 if __name__ == "__main__":
@@ -116,7 +125,9 @@ if __name__ == "__main__":
                     models.Tweet(
                         id=tweet.id,
                         thread_id=thread.id,
-                        content=tweet.renderedContent,
+                        content=tweet_content_links_removed(
+                            tweet.renderedContent
+                        ),
                         links=links,
                         index=i,
                     )
