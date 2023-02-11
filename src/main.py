@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
                 if tweet.media:
                     for media in tweet.media:
-                        id, type, url = "", "", ""
+                        type, url = "", "", ""
 
                         if isinstance(media, snsPhoto):
                             type = "photo"
@@ -138,7 +138,6 @@ if __name__ == "__main__":
 
                         media_db.append(
                             models.Media(
-                                id=url,
                                 type=type,
                                 url=url,
                                 tweet_id=tweet.id

@@ -1,6 +1,6 @@
 # coding: utf-8
 from sqlalchemy import create_engine
-from sqlalchemy import BigInteger, Boolean, Column, Computed, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, ARRAY, text
+from sqlalchemy import BigInteger, Boolean, Column, Computed, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, ARRAY, text, UUID
 from sqlalchemy.dialects.postgresql import TIMESTAMP, TSVECTOR
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -189,7 +189,7 @@ class Tweet(MixinDictHelpers, Base):
 class Media(MixinDictHelpers, Base):
     __tablename__ = 'media'
 
-    id = Column(Text, primary_key=True)
+    id = Column(UUID, primary_key=True, server_default="uuid_generate_v4()")
     type = Column(Text, nullable=False)
     url = Column(Text, nullable=False)
     preview_image_url = Column(Text)
