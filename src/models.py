@@ -1,4 +1,5 @@
 # coding: utf-8
+import uuid
 from sqlalchemy import create_engine
 from sqlalchemy import BigInteger, Boolean, Column, Computed, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, ARRAY, text, UUID
 from sqlalchemy.dialects.postgresql import TIMESTAMP, TSVECTOR
@@ -189,7 +190,8 @@ class Tweet(MixinDictHelpers, Base):
 class Media(MixinDictHelpers, Base):
     __tablename__ = 'media'
 
-    id = Column(UUID, primary_key=True, server_default="uuid_generate_v4()")
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                default=uuid.uuid4, server_default=text("gen_random_uuid()"))
     type = Column(Text, nullable=False)
     url = Column(Text, nullable=False)
     preview_image_url = Column(Text)

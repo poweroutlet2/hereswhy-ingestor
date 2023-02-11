@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+import uuid
 from snsUtils import getConversationIdsFromUser, getThreads
 from snscrape.modules.twitter import (
     Photo as snsPhoto,
@@ -54,7 +55,7 @@ def bulk_upsert(session: Session, db_objects: list[models.Author] | list[models.
 def tweet_content_links_removed(content: str):
     """Removes t.co links from content
     """
-    return re.sub((r' https://t.co/\w{10}', '', content))
+    return re.sub(r' https://t.co/\w{10}', '', content)
 
 
 if __name__ == "__main__":
@@ -135,7 +136,7 @@ if __name__ == "__main__":
 
                 if tweet.media:
                     for media in tweet.media:
-                        type, url = "", "", ""
+                        type, url = "", ""
 
                         if isinstance(media, snsPhoto):
                             type = "photo"
@@ -149,6 +150,7 @@ if __name__ == "__main__":
 
                         media_db.append(
                             models.Media(
+                                id=uuid.uuid4(),
                                 type=type,
                                 url=url,
                                 tweet_id=tweet.id

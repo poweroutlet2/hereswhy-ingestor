@@ -12,4 +12,7 @@ Currently, the ingestor runtime is acceptable. However, there are a few ways tha
     1. query db before saving to find existing objects. Split them into bulk_saves and bulk_updates
     2. bulk_save_mappings https://stackoverflow.com/a/67200889/9090347
 
-- Add threading
+- Add multiprocessing?
+
+# Media id generation
+- The default value for media.id is set to gen_random_uuid() in postgres. However, this is not generating random random uuids in the insert statement. A work around for this was to generate the uuids within the injestor itself. This is seemingly safe 
