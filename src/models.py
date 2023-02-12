@@ -1,15 +1,13 @@
 # coding: utf-8
 import uuid
 from sqlalchemy import create_engine
-from sqlalchemy import BigInteger, Boolean, Column, Computed, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, ARRAY, text, UUID
-from sqlalchemy.dialects.postgresql import TIMESTAMP, TSVECTOR
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, ForeignKey, Index, Integer, String, Table, Text, UniqueConstraint, ARRAY, text, UUID
+from sqlalchemy.dialects.postgresql import TIMESTAMP
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 metadata = Base.metadata
-
-engine = create_engine("sqlite://", echo=True)
 
 
 class MixinDictHelpers:
@@ -190,8 +188,7 @@ class Tweet(MixinDictHelpers, Base):
 class Media(MixinDictHelpers, Base):
     __tablename__ = 'media'
 
-    id = Column(UUID(as_uuid=True), primary_key=True,
-                default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    id = Column(Text, primary_key=True)
     type = Column(Text, nullable=False)
     url = Column(Text, nullable=False)
     preview_image_url = Column(Text)

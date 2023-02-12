@@ -1,6 +1,5 @@
 from datetime import datetime
 import re
-import uuid
 from snsUtils import getConversationIdsFromUser, getThreads
 from snscrape.modules.twitter import (
     Photo as snsPhoto,
@@ -151,7 +150,7 @@ if __name__ == "__main__":
 
                         media_db.append(
                             models.Media(
-                                id=uuid.uuid4(),
+                                id=url,
                                 type=type,
                                 url=url,
                                 tweet_id=tweet.id
