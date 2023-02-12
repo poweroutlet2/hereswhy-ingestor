@@ -90,7 +90,8 @@ if __name__ == "__main__":
                     follower_count=first_tweet.user.followersCount,
                     following_count=first_tweet.user.friendsCount,
                     source_account_id=save_bot.id,
-                    profile_picture_url=first_tweet.user.profileImageUrl,
+                    profile_picture_url=first_tweet.user.profileImageUrl.replace(
+                        '_normal.', '.'),
                     created_at=datetime.now(),
                     updated_at=datetime.now()
                 )
