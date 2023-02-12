@@ -90,7 +90,11 @@ def getThreads(conversation_ids: list[int], exclude_ids: set() = None) -> list[T
     threads = []
     for id in conversation_ids:
         if not exclude_ids or id not in exclude_ids:
-            thread = getThread(id)
+            try:
+                thread = getThread(id)
+            except e:
+                print(f"Error in snscrape for conversation_id={id}")
+                print(e.traceback())
             if thread:
                 threads.append(thread)
     return threads
