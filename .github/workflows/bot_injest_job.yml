@@ -5,8 +5,8 @@ name: Bot Injestor Job
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # according to the schedule
 on:
-  #schedule:
-  #  - cron: "0 */1 * * *" #runs every hour
+  schedule:
+    - cron: "0 */1 * * *" #runs every hour
   workflow_dispatch: # adds manual run button to UI
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -30,4 +30,5 @@ jobs:
         env:
           DB_URL: ${{ secrets.DB_URL }}
           TWTR_BEARER_TOKEN: ${{ secrets.TWTR_BEARER_TOKEN }}
+          LOOKBACK_HOURS: ${{ secrets.LOOKBACK_HOURS }}
         run: poetry run python src/main.py
