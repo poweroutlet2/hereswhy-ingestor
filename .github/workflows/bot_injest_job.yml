@@ -30,4 +30,4 @@ jobs:
         env:
           DB_URL: ${{ secrets.DB_URL }}
           TWTR_BEARER_TOKEN: ${{ secrets.TWTR_BEARER_TOKEN }}
-        run: poetry run python src/run_bot_injest.py
+        run: poetry run python src/main.py
