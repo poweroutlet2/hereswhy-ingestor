@@ -4,25 +4,25 @@ name: Bot Injestor Job
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # according to the schedule
-on:
-  schedule:
-    - cron: "0 */1 * * *" #runs every hour
-  workflow_dispatch: # adds manual run button to UI
+# on:
+#   schedule:
+#     - cron: "0 */1 * * *" #runs every hour
+#   workflow_dispatch: # adds manual run button to UI
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v4 
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.10.6' 
-          cache: 'poetry'
+          python-version: "3.10.6"
+          cache: "poetry"
       - run: poetry install
       - run: poetry show
 
