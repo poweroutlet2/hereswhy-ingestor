@@ -72,14 +72,18 @@ def getThread(conversation_id: int | str, min_thread_length=3) -> Thread | None:
             tweetId=int(conversation_id), mode=TwitterTweetScraperMode.SCROLL
         ).get_items()
     ):
+        if not isinstance(tweet, snstwitter.Tweet):
+            # the tweet can also be of type Tombstone and Tweetref if it was unable to be scraped
+            # should we just ignore the entire thread if one tweet is malformed?
+            break
+
         # add tweets to thread
         if not author:
             # if author is not set, the tweet is first tweet in thread
             author = tweet.user.username
             lang = tweet.lang
             tweets.append(tweet)
-        elif isinstance(tweet, snstwitter.Tweet) and tweet.user.username == author and tweet.inReplyToUser.username == author:
-            # the tweet can also be of type Tombstone and Tweetref if it was unable to be scraped
+        elif tweet.user.username == author and tweet.inReplyToUser.username == author:
             tweets.append(tweet)
         else:
             break
