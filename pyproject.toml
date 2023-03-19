@@ -1,18 +1,18 @@
 [tool.poetry]
 name = "raptor"
 version = "0.1.0"
-description = "Thread detector for the threads (name subject to change) app"
+description = "Thread ingestor for hereswhy.io" 
 authors = ["poweroutlet2, turboismo, HP"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 requests = "^2.28.1"
 SQLAlchemy = "^2.0.1"
 psycopg2-binary = "^2.9.3"
 python-dotenv = "^0.21.0"
 sqlacodegen = "^2.3.0"
-snscrape = {git = "https://github.com/poweroutlet2/snscrape.git"}
+snscrape = {git = "https://github.com/poweroutlet2/snscrape-po2.git#po2-v1"}
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.16.0"
