@@ -78,7 +78,8 @@ def getThread(conversation_id: int | str, min_thread_length=3) -> Thread | None:
             author = tweet.user.username
             lang = tweet.lang
             tweets.append(tweet)
-        elif tweet.user.username == author and tweet.inReplyToUser.username == author:
+        elif isinstance(tweet, snstwitter.Tweet) and tweet.user.username == author and tweet.inReplyToUser.username == author:
+            # the tweet can also be of type Tombstone and Tweetref if it was unable to be scraped
             tweets.append(tweet)
         else:
             break
