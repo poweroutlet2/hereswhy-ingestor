@@ -1333,7 +1333,7 @@ requests = {version = "*", extras = ["socks"]}
 
 [package.source]
 type = "git"
-url = "https://github.com/poweroutlet2/snscrape-po2.git#po2-v1"
+url = "https://github.com/poweroutlet2/snscrape-po2.git#po2-v2"
 reference = "HEAD"
 resolved_reference = "edac5f38cbb5de6fcd5368bccb42c30b13a0a199"
 
@@ -1547,4 +1547,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "cf32bbc8528b12bcd3c7c3339961f6668328e42e2d83197619e5dc66890a290b"
+content-hash = "b65339928d2d2fdfbc33ed1b1bf7229b821b171896f34da71629c7ce4800d5be"
