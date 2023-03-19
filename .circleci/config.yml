@@ -8,7 +8,9 @@ orbs:
 jobs:
   build_and_ingest: # this can be any name you choose
     resource_class: small
-    executor: python/default # use the default executor defined within the orb
+    executor: 
+      name: python/default # use the default executor defined within the orb
+      tag: '3.11'
     steps:
       - checkout # checkout source code
       - python/install-packages:
